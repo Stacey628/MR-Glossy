@@ -4,14 +4,35 @@ using UnityEngine;
 
 public class CollideWords : MonoBehaviour
 {
+    // Reference to the AudioSource component
+    private AudioSource audioSource;
+
+    private void Start()
+    {
+        // Get the AudioSource attached to this GameObject
+        audioSource = GetComponent<AudioSource>();
+
+        // Ensure there's an AudioSource component attached
+        if (audioSource == null)
+        {
+            Debug.LogError("No AudioSource component found. Please attach one with an audio clip.");
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
+        // Play sound effect
+        PlayCollisionSound();
+
         // Disable the entire hierarchy of the collided 3D object
         DisableObjectHierarchy(other.gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // Play sound effect
+        PlayCollisionSound();
+
         // Disable the entire hierarchy of the collided UI object
         DisableObjectHierarchy(other.gameObject);
     }
@@ -36,6 +57,19 @@ public class CollideWords : MonoBehaviour
         foreach (CanvasRenderer canvasRenderer in canvasRenderers)
         {
             canvasRenderer.gameObject.SetActive(status);
+        }
+    }
+
+    private void PlayCollisionSound()
+    {
+        // Check if the audioSource and clip are ready
+        if (audioSource != null && audioSource.clip != null)
+        {
+            audioSource.Play();
+        }
+        else
+        {
+            Debug.LogWarning("AudioSource or AudioClip is missing.");
         }
     }
 }
