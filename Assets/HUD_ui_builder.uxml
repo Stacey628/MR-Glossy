@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/hud_uss.uss?fileID=7433441132597879392&amp;guid=613deec38c54fe6c1ba9a8a67147d85e&amp;type=3#hud_uss" />
+    <ui:GroupBox name="GroupBox" style="align-self: stretch; -unity-background-image-tint-color: rgb(0, 0, 0);">
+        <ui:Label tabindex="-1" text="FluentFlyer" parse-escape-sequences="true" display-tooltip-when-elided="true" name="FluentFlyer" focusable="true" style="-unity-text-align: upper-right; -unity-font: url(&quot;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=2230732570650464555&amp;guid=bc49e56f6b6ebb55db99106dd50770d9&amp;type=3#NotInter-Regular&quot;); font-size: 54px; height: 56px;" />
+        <ui:Label tabindex="-1" text="38 POINTS" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-text-align: upper-right; font-size: 28px;" />
+        <ui:Label tabindex="-1" text="168 SECONDS" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-text-align: upper-right; font-size: 28px;" />
+        <ui:ProgressBar value="22" title="Learning Progress" style="-unity-background-image-tint-color: rgb(6, 200, 42);" />
+    </ui:GroupBox>
+</ui:UXML>
