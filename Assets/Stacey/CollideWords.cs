@@ -4,72 +4,112 @@ using UnityEngine;
 
 public class CollideWords : MonoBehaviour
 {
-    // Reference to the AudioSource component
-    private AudioSource audioSource;
+    public float effectDuration = 2.0f;
+    [SerializeField]
+    private GameObject centerEyeAnchor;
 
     private void Start()
     {
-        // Get the AudioSource attached to this GameObject
-        audioSource = GetComponent<AudioSource>();
+        DisablePlayOnAwake();
 
-        // Ensure there's an AudioSource component attached
-        if (audioSource == null)
+        // Find centerEyeAnchor if not assigned in the inspector
+        if (centerEyeAnchor == null)
         {
-            Debug.LogError("No AudioSource component found. Please attach one with an audio clip.");
+            centerEyeAnchor = GameObject.Find("CenterEyeAnchor");
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Play sound effect
-        PlayCollisionSound();
-
-        // Disable the entire hierarchy of the collided 3D object
-        DisableObjectHierarchy(other.gameObject);
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        // Play sound effect
-        PlayCollisionSound();
-
-        // Disable the entire hierarchy of the collided UI object
-        DisableObjectHierarchy(other.gameObject);
-    }
-
-    private void DisableObjectHierarchy(GameObject obj)
-    {
-        // Disable all renderers and UI elements in this object and its children
-        SetActiveStatusForAllRenderers(obj, false);
-    }
-
-    private void SetActiveStatusForAllRenderers(GameObject obj, bool status)
-    {
-        // Handle 3D renderers
-        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
-        foreach (Renderer renderer in renderers)
+        // Check if the collider is a child of centerEyeAnchor
+        if (IsChildOfCenterEyeAnchor(other.gameObject))
         {
-            renderer.enabled = status;
-        }
+            Debug.Log("OnTriggerEnter fired with: " + other.gameObject.name);
 
-        // Handle UI (2D) canvas renderers
-        CanvasRenderer[] canvasRenderers = obj.GetComponentsInChildren<CanvasRenderer>();
-        foreach (CanvasRenderer canvasRenderer in canvasRenderers)
-        {
-            canvasRenderer.gameObject.SetActive(status);
+            // Immediately hide the object's renderers
+            HideObjectRenderers(other.gameObject);
+
+            // Start coroutine to handle the effects
+            StartCoroutine(PlayEffectsAndDisable(other.gameObject));
         }
     }
 
-    private void PlayCollisionSound()
+    private bool IsChildOfCenterEyeAnchor(GameObject obj)
     {
-        // Check if the audioSource and clip are ready
-        if (audioSource != null && audioSource.clip != null)
+        return obj.transform.IsChildOf(centerEyeAnchor.transform);
+    }
+
+    private IEnumerator PlayEffectsAndDisable(GameObject obj)
+    {
+        PlayParticleEffect(obj);
+        PlayCollisionSound(obj);
+
+        yield return new WaitForSeconds(effectDuration);
+
+        DisableEntireHierarchy(obj);
+    }
+
+    private void PlayCollisionSound(GameObject obj)
+    {
+        AudioSource source = obj.GetComponent<AudioSource>();
+        if (source != null && source.clip != null)
         {
-            audioSource.Play();
+            Debug.Log("Playing sound on: " + obj.name);
+            source.Play();
         }
         else
         {
-            Debug.LogWarning("AudioSource or AudioClip is missing.");
+            Debug.LogWarning($"AudioSource or AudioClip is missing on the object: {obj.name}");
+        }
+    }
+
+    private void PlayParticleEffect(GameObject obj)
+    {
+        ParticleSystem particleSystem = obj.GetComponentInChildren<ParticleSystem>();
+        if (particleSystem != null)
+        {
+            Debug.Log($"Playing particle effect on: {obj.name}");
+            particleSystem.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"No ParticleSystem component found on the object: {obj.name}");
+        }
+    }
+
+    private void HideObjectRenderers(GameObject obj)
+    {
+        Debug.Log("Hiding object renderers for: " + obj.name);
+        Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
+        foreach (Renderer renderer in renderers)
+        {
+            if (!(renderer is ParticleSystemRenderer))
+            {
+                renderer.enabled = false;
+            }
+        }
+
+        CanvasRenderer[] canvasRenderers = obj.GetComponentsInChildren<CanvasRenderer>();
+        foreach (CanvasRenderer canvasRenderer in canvasRenderers)
+        {
+            canvasRenderer.gameObject.SetActive(false);
+        }
+    }
+
+    private void DisableEntireHierarchy(GameObject obj)
+    {
+        Debug.Log("Disabling entire hierarchy for: " + obj.name);
+        obj.SetActive(false);
+    }
+
+    private void DisablePlayOnAwake()
+    {
+        ParticleSystem[] particleSystems = GetComponentsInChildren<ParticleSystem>();
+        foreach (ParticleSystem ps in particleSystems)
+        {
+            var mainModule = ps.main;
+            mainModule.playOnAwake = false;
+            Debug.Log("Disabling Play On Awake for ParticleSystem: " + ps.name);
         }
     }
 }
