@@ -8,6 +8,9 @@ public class CollideWords : MonoBehaviour
     [SerializeField]
     private GameObject centerEyeAnchor;
 
+    // Reference to the HUDTextUpdater
+    private HUDTextUpdater hudTextUpdater;
+
     private void Start()
     {
         DisablePlayOnAwake();
@@ -16,6 +19,21 @@ public class CollideWords : MonoBehaviour
         if (centerEyeAnchor == null)
         {
             centerEyeAnchor = GameObject.Find("CenterEyeAnchor");
+        }
+
+        // Find the HUDTextUpdater in the scene
+        GameObject hudObject = GameObject.Find("Da_textyboi"); // Replace "HUDCanvas" with the actual name of your GameObject that contains HUDTextUpdater
+        if (hudObject != null)
+        {
+            hudTextUpdater = hudObject.GetComponent<HUDTextUpdater>();
+            if (hudTextUpdater == null)
+            {
+                Debug.LogError("HUDTextUpdater component not found on the HUDCanvas GameObject.");
+            }
+        }
+        else
+        {
+            Debug.LogError("HUDCanvas GameObject not found.");
         }
     }
 
@@ -31,6 +49,16 @@ public class CollideWords : MonoBehaviour
 
             // Start coroutine to handle the effects
             StartCoroutine(PlayEffectsAndDisable(other.gameObject));
+            
+            // Add a point if hudTextUpdater is assigned
+            if (hudTextUpdater != null)
+            {
+                hudTextUpdater.AddPoints(1);
+            }
+            else
+            {
+                Debug.LogWarning("HUDTextUpdater is not assigned. Points not added.");
+            }
         }
     }
 
@@ -113,3 +141,4 @@ public class CollideWords : MonoBehaviour
         }
     }
 }
+
